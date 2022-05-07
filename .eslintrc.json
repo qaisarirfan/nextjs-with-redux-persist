@@ -1,6 +1,27 @@
 {
-  "extends": "next/core-web-vitals",
+  "extends": "airbnb",
+  "plugins": [
+    "react",
+    "react-hooks"
+  ],
+  "globals": {
+    "afterEach": "readonly",
+    "beforeEach": "readonly",
+    "Atomics": "readonly",
+    "expect": "readonly",
+    "SharedArrayBuffer": "readonly",
+    "test": "readonly"
+  },
   "rules": {
+    "import/no-named-as-default-member": 0,
+    "jsx-a11y/anchor-has-content": 0,
+    "jsx-a11y/anchor-is-valid": "warn",
+    "jsx-a11y/click-events-have-key-events": 0,
+    "jsx-a11y/label-has-associated-control": 0,
+    "jsx-a11y/label-has-for": 0,
+    "jsx-a11y/mouse-events-have-key-events": 0,
+    "jsx-a11y/no-noninteractive-tabindex": 0,
+    "jsx-a11y/no-static-element-interactions": 0,
     "max-len": [
       "error",
       {
@@ -9,6 +30,15 @@
     ],
     "no-shadow": 0,
     "object-curly-newline": 0,
+    "react/button-has-type": 0,
+    "react/forbid-foreign-prop-types": 0,
+    "react/jsx-filename-extension": 0,
+    "react/no-array-index-key": 0,
+    "react/no-find-dom-node": 0,
+    "react/no-string-refs": 0,
+    "react/prefer-stateless-function": "warn",
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": 0, // Checks effect dependencies
     "jsx-quotes": [
       "error",
       "prefer-double"
@@ -16,6 +46,7 @@
     "quotes": [
       "error",
       "single"
-    ]
+    ],
+    "default-param-last": 0
   }
 }

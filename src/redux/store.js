@@ -1,12 +1,12 @@
-import { applyMiddleware } from 'redux'
 import { combineReducers } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist'
-import { useMemo } from 'react'
-import storage from 'redux-persist/lib/storage'
-import thunk from 'redux-thunk'
+import { persistReducer } from 'redux-persist';
+import { useMemo } from 'react';
+import storage from 'redux-persist/lib/storage';
+import thunk from 'redux-thunk';
+import createFilter from 'redux-persist-transform-filter';
 
-let store
+let store;
 
 const exampleInitialState = {
   lastUpdate: 0,
@@ -14,7 +14,7 @@ const exampleInitialState = {
   count: 0,
   exampleData: [],
   error: null,
-}
+};
 
 export const actionTypes = {
   TICK: 'TICK',
@@ -23,7 +23,7 @@ export const actionTypes = {
   RESET: 'RESET',
   LOAD_EXAMPLE_DATA: 'LOAD_EXAMPLE_DATA',
   LOADING_DATA_FAILURE: 'LOADING_DATA_FAILURE',
-}
+};
 
 // REDUCERS
 export const reducer = (state = exampleInitialState, action) => {
@@ -33,73 +33,66 @@ export const reducer = (state = exampleInitialState, action) => {
         ...state,
         lastUpdate: action.ts,
         light: !!action.light,
-      }
+      };
     case actionTypes.INCREMENT:
       return {
         ...state,
         count: state.count + 1,
-      }
+      };
     case actionTypes.DECREMENT:
       return {
         ...state,
         count: state.count - 1,
-      }
+      };
     case actionTypes.RESET:
       return {
         ...state,
         count: exampleInitialState.count,
-      }
+      };
     case actionTypes.LOAD_EXAMPLE_DATA:
       return {
         ...state,
         exampleData: action.data,
-      }
+      };
     case actionTypes.LOADING_DATA_FAILURE:
-      return { ...state, error: true }
+      return { ...state, error: true };
     default:
-      return state
+      return state;
   }
-}
+};
 
 // ACTIONS
-export const serverRenderClock = () => {
-  return { type: actionTypes.TICK, light: false, ts: Date.now() }
-}
-export const startClock = () => {
-  return { type: actionTypes.TICK, light: true, ts: Date.now() }
-}
+export const serverRenderClock = () => ({ type: actionTypes.TICK, light: false, ts: Date.now() });
+export const startClock = () => ({ type: actionTypes.TICK, light: true, ts: Date.now() });
 
-export const incrementCount = () => {
-  return { type: actionTypes.INCREMENT }
-}
+export const incrementCount = () => ({ type: actionTypes.INCREMENT });
 
-export const decrementCount = () => {
-  return { type: actionTypes.DECREMENT }
-}
+export const decrementCount = () => ({ type: actionTypes.DECREMENT });
 
-export const resetCount = () => {
-  return { type: actionTypes.RESET }
-}
+export const resetCount = () => ({ type: actionTypes.RESET });
 
-export const loadExampleData = (data) => {
-  return { type: actionTypes.LOAD_EXAMPLE_DATA, data }
-}
+export const loadExampleData = (data) => ({ type: actionTypes.LOAD_EXAMPLE_DATA, data });
 
-export const loadingExampleDataFailure = () => {
-  return { type: actionTypes.LOADING_DATA_FAILURE }
-}
+export const loadingExampleDataFailure = () => ({ type: actionTypes.LOADING_DATA_FAILURE });
+
+export const saveExampleDataFilter = createFilter('reducer', ['exampleData']);
+export const loadExampleDataFilter = createFilter('reducer', null, ['exampleData']);
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['exampleData'], // place to select which state you want to persist
-}
+  whitelist: ['reducer'], // place to select which state you want to persist
+  transforms: [
+    saveExampleDataFilter,
+    loadExampleDataFilter,
+  ],
+};
 
 const reducers = combineReducers({
-  reducer
+  reducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, reducers)
+const persistedReducer = persistReducer(persistConfig, reducers);
 
 function makeStore(preloadedState) {
   return configureStore({
@@ -107,32 +100,32 @@ function makeStore(preloadedState) {
     middleware: [thunk],
     preloadedState,
     reducer: persistedReducer,
-  })
+  });
 }
 
 export const initializeStore = (preloadedState) => {
-  let _store = store ?? makeStore(preloadedState)
+  let newStore = store || makeStore(preloadedState);
 
   // After navigating to a page with an initial Redux state, merge that state
   // with the current state in the store, and create a new store
   if (preloadedState && store) {
-    _store = makeStore({
+    newStore = makeStore({
       ...store.getState(),
       ...preloadedState,
-    })
+    });
     // Reset the current store
-    store = undefined
+    store = undefined;
   }
 
   // For SSG and SSR always create a new store
-  if (typeof window === 'undefined') return _store
+  if (typeof window === 'undefined') return newStore;
   // Create the store once in the client
-  if (!store) store = _store
+  if (!store) store = newStore;
 
-  return _store
-}
+  return newStore;
+};
 
 export function useStore(initialState) {
-  const store = useMemo(() => initializeStore(initialState), [initialState])
-  return store
+  const store = useMemo(() => initializeStore(initialState), [initialState]);
+  return store;
 }

@@ -1,22 +1,27 @@
-import { PersistGate } from 'redux-persist/integration/react'
-import { persistStore } from 'redux-persist'
-import { Provider } from 'react-redux'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistStore } from 'redux-persist';
+import { Provider } from 'react-redux';
 
-import { useStore } from '../src/redux/store'
+import { useStore } from '../src/redux/store';
 
 function MyApp({ Component, pageProps }) {
-  const store = useStore(pageProps.initialReduxState)
-  const persistor = persistStore(store, {}, function () {
-    persistor.persist()
-  })
+  const store = useStore(pageProps.initialReduxState);
+  const persistor = persistStore(store, {}, () => {
+    persistor.persist();
+  });
 
   return (
     <Provider store={store}>
-      <PersistGate loading={<div>loading</div>} persistor={persistor}>
+      <PersistGate
+        loading={<div>loading</div>}
+        persistor={persistor}
+      >
         <Component {...pageProps} />
       </PersistGate>
     </Provider>
-  )
+  );
 }
 
-export default MyApp
+export default MyApp;
